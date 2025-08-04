@@ -11,3 +11,10 @@ script = ExtResource("1_elqb8")
 [node name="Cursor" type="Sprite2D" parent="."]
 texture = SubResource("PlaceholderTexture2D_elqb8")
 centered = false
+
+[node name="PlaceBuildingButton" type="Button" parent="."]
+offset_left = 7.0
+offset_top = 606.0
+offset_right = 124.0
+offset_bottom = 637.0
+text = "Place Building"
