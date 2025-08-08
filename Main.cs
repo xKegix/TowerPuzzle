@@ -9,7 +9,7 @@ public partial class Main : Node2D
 	private Sprite2D cursor;
 	private PackedScene buildingScene;
 	private Button placeBuildingButton;
-	private TileMapLayer highlightTileMapLayer;
+	private TileMapLayer highlightTilemapLayer;
 
 	// tracking hovered cell.
 	private Vector2? hoveredGridCell;
@@ -20,8 +20,8 @@ public partial class Main : Node2D
 		buildingScene = GD.Load<PackedScene>("res://scenes/building/Building.tscn");
 		cursor = GetNode<Sprite2D>("Cursor");
 		placeBuildingButton = GetNode<Button>("PlaceBuildingButton"); 
-		highlightTileMapLayer = GetNode<TileMapLayer>("HighlightTileMapLayer");
-		GD.Print($"TileMap Layer Found: {highlightTileMapLayer != null}");
+		highlightTilemapLayer = GetNode<TileMapLayer>("HighlightTileMapLayer");
+		//GD.Print($"TileMap Layer Found: {highlightTileMapLayer != null}");
 
 		cursor.Visible = false;
 
@@ -51,6 +51,7 @@ public partial class Main : Node2D
 		if (cursor.Visible && (!hoveredGridCell.HasValue || hoveredGridCell.Value != gridPosition))
 		{
 			hoveredGridCell = gridPosition;
+			UpdateHighlightTileMapLayer();
 		}
 	}
 
@@ -88,26 +89,22 @@ public partial class Main : Node2D
 	*/
 	private void UpdateHighlightTileMapLayer()
 	{
-		 if (highlightTileMapLayer == null)
-    {
-        GD.PrintErr("TileMapLayer reference is null! Check _Ready() initialization.");
-        return;
-    }
-		GD.Print("UpdateHighlight CALLED!");
-		highlightTileMapLayer.Clear();
+		
+		//GD.Print("UpdateHighlight CALLED!");
+		highlightTilemapLayer.Clear();
 
 		if (!hoveredGridCell.HasValue)
 		{
-			GD.PrintErr("ERROR: TileMap layer is null!");
+			//GD.PrintErr("ERROR: TileMap layer is null!");
 			return;
 		}
-		 GD.Print("TileMap layer exists");
-		 GD.Print($"Mouse grid position: {hoveredGridCell}");
+		 //GD.Print("TileMap layer exists");
+		// GD.Print($"Mouse grid position: {hoveredGridCell}");
 		for (var x = hoveredGridCell.Value.X - 3; x <= hoveredGridCell.Value.X + 3; x++) // start from left, end right, move right one tile each step.
 		{
 			for (var y = hoveredGridCell.Value.Y - 3; y <= hoveredGridCell.Value.Y + 3; y++)
 			{
-				highlightTileMapLayer.SetCell(new Vector2I((int)x, (int)y), 0, Vector2I.Zero);
+				highlightTilemapLayer.SetCell(new Vector2I((int)x, (int)y), 0, Vector2I.Zero);
 			}
 		}
 	} 
