@@ -9,13 +9,19 @@ public partial class Main : Node2D
 	private Sprite2D cursor;
 	private PackedScene buildingScene;
 	private Button placeBuildingButton;
+	private TileMapLayer highlightTileMapLayer;
+
+	// tracking hovered cell.
+	private Vector2? hoveredGridCell;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		buildingScene = GD.Load<PackedScene>("res://scenes/building/Building.tscn");
 		cursor = GetNode<Sprite2D>("Cursor");
-		placeBuildingButton = GetNode<Button>("PlaceBuildingButton");
+		placeBuildingButton = GetNode<Button>("PlaceBuildingButton"); 
+		highlightTileMapLayer = GetNode<TileMapLayer>("HighlightTileMapLayer");
+		GD.Print($"TileMap Layer Found: {highlightTileMapLayer != null}");
 
 		cursor.Visible = false;
 
@@ -41,6 +47,11 @@ public partial class Main : Node2D
 		var gridPosition = GetMouseGridCellPosition();
 		cursor.GlobalPosition = gridPosition * 64; // square pos = pixel pos.
 
+		// if currently placing building and hovered cell has no value or value set for hovered cell not equal to grid position.
+		if (cursor.Visible && (!hoveredGridCell.HasValue || hoveredGridCell.Value != gridPosition))
+		{
+			hoveredGridCell = gridPosition;
+		}
 	}
 
 	private Vector2 GetMouseGridCellPosition()
@@ -60,7 +71,47 @@ public partial class Main : Node2D
 
 		var gridPosition = GetMouseGridCellPosition();
 		building.GlobalPosition = gridPosition * 64;
+
+		hoveredGridCell = null;
+		UpdateHighlightTileMapLayer();
 	}
+
+	// implement safety check.
+	/* 
+	> if mouse NOT hovering over grid cell - not in build mode so stop,
+	> if yes continue.
+	> start loop that runs X. 
+	> hoverCell range 5 tiles wide area (-3 / +3).
+	> loop for Y.
+	
+	> clear tile at spot.
+	*/
+	private void UpdateHighlightTileMapLayer()
+	{
+		 if (highlightTileMapLayer == null)
+    {
+        GD.PrintErr("TileMapLayer reference is null! Check _Ready() initialization.");
+        return;
+    }
+		GD.Print("UpdateHighlight CALLED!");
+		highlightTileMapLayer.Clear();
+
+		if (!hoveredGridCell.HasValue)
+		{
+			GD.PrintErr("ERROR: TileMap layer is null!");
+			return;
+		}
+		 GD.Print("TileMap layer exists");
+		 GD.Print($"Mouse grid position: {hoveredGridCell}");
+		for (var x = hoveredGridCell.Value.X - 3; x <= hoveredGridCell.Value.X + 3; x++) // start from left, end right, move right one tile each step.
+		{
+			for (var y = hoveredGridCell.Value.Y - 3; y <= hoveredGridCell.Value.Y + 3; y++)
+			{
+				highlightTileMapLayer.SetCell(new Vector2I((int)x, (int)y), 0, Vector2I.Zero);
+			}
+		}
+	} 
+
 
 	private void OnButtonPressed()
 	{
@@ -69,4 +120,3 @@ public partial class Main : Node2D
 }
 
 
- 
