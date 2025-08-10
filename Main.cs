@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Game;
 
-public partial class Main : Node2D
+public partial class Main : Node
 {
 	private Sprite2D cursor;
 	private PackedScene buildingScene;
@@ -27,7 +27,10 @@ public partial class Main : Node2D
 		cursor = GetNode<Sprite2D>("Cursor");
 		placeBuildingButton = GetNode<Button>("PlaceBuildingButton");
 		highlightTilemapLayer = GetNode<TileMapLayer>("HighlightTileMapLayer");
-		//GD.Print($"TileMap Layer Found: {highlightTileMapLayer != null}");
+							//GD.Print($"TileMap Layer Found: {highlightTileMapLayer != null}");
+
+		
+		highlightTilemapLayer.Modulate = new Color(1, 1, 1, 0.5f); // 50% transparent
 
 		cursor.Visible = false;
 
@@ -43,6 +46,7 @@ public partial class Main : Node2D
 			PlaceBuildingAtMousePosition();
 			cursor.Visible = false;
 		}
+		
 	}
 
 
@@ -63,7 +67,7 @@ public partial class Main : Node2D
 
 	private Vector2 GetMouseGridCellPosition()
 	{
-		var mousePosition = GetGlobalMousePosition(); // get mouse position.
+		var mousePosition = highlightTilemapLayer.GetGlobalMousePosition(); // get mouse position.
 		var gridPosition = mousePosition / 64;  // divide x,y by 64 to get grid pos.
 		gridPosition = gridPosition.Floor(); // round nearest whole number.
 		return gridPosition;
@@ -122,5 +126,3 @@ public partial class Main : Node2D
 		cursor.Visible = true;
 	}
 }
-
-
