@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Game;
@@ -13,13 +14,18 @@ public partial class Main : Node2D
 
 	// tracking hovered cell.
 	private Vector2? hoveredGridCell;
+	// create notepad to remember taken grid positions in game.
+		// > could use 2D array, but more memory???
+	// stores co-ordinate so vector2.
+	// create like new array when game starts. Maybe initialise it already?
+	private HashSet<Vector2> occupiedCells = new();
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		buildingScene = GD.Load<PackedScene>("res://scenes/building/Building.tscn");
 		cursor = GetNode<Sprite2D>("Cursor");
-		placeBuildingButton = GetNode<Button>("PlaceBuildingButton"); 
+		placeBuildingButton = GetNode<Button>("PlaceBuildingButton");
 		highlightTilemapLayer = GetNode<TileMapLayer>("HighlightTileMapLayer");
 		//GD.Print($"TileMap Layer Found: {highlightTileMapLayer != null}");
 
@@ -32,7 +38,7 @@ public partial class Main : Node2D
 	// call place building function.
 	public override void _UnhandledInput(InputEvent evt)
 	{
-		if (cursor.Visible && evt.IsActionPressed("left_click"))
+		if (cursor.Visible && evt.IsActionPressed("left_click") && !occupiedCells.Contains(GetMouseGridCellPosition()))
 		{
 			PlaceBuildingAtMousePosition();
 			cursor.Visible = false;
@@ -72,6 +78,7 @@ public partial class Main : Node2D
 
 		var gridPosition = GetMouseGridCellPosition();
 		building.GlobalPosition = gridPosition * 64;
+		occupiedCells.Add(gridPosition);
 
 		hoveredGridCell = null;
 		UpdateHighlightTileMapLayer();
